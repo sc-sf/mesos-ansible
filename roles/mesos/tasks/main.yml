@@ -1,0 +1,102 @@
+# file: roles/mesos/tasks/main.yml
+---
+
+# ---------- to all nodes in the cluster--------------------------------------------------------
+
+- name: copy mesos-0.21.0-1.0.rpm 
+  copy: src={{mesos_rpm}} dest=/tmp
+
+- name: install mesos 
+  yum: pkg=/tmp/{{mesos_rpm}} state=installed
+
+- name: define the IPs of mesos master service that zookeeper coordinates
+  template: src=zk.j2 dest=/etc/mesos/zk owner=0 group=0 mode=644
+
+# ---------- slaves specific --------------------------------------------------------
+
+- name: specify the hostname of mesos
+  template: src=hostname.j2 dest=/etc/mesos-slave/hostname owner=0 group=0 mode=644
+  when: inventory_hostname in groups['slaves']
+
+- name: specify the ip address of mesos... start mesos-slave
+  template: src=ip.j2 dest=/etc/mesos-slave/ip owner=0 group=0 mode=644
+  when: inventory_hostname in groups['slaves']
+
+- name: specify the usable resources per slave - the numbers can overstate
+  template: src=resources.j2 dest=/etc/mesos-slave/resources owner=0 group=0 mode=644
+  when: inventory_hostname in groups['slaves']
+
+- name: copy mesos slave init script
+  template: src=mesos-slave.conf.j2 dest=/etc/init/mesos-slave.conf owner=0 group=0 mode=644
+  when: inventory_hostname in groups['slaves']
+  notify:
+    - start mesos-slave
+
+- name: disable slave... enable=no of service module doesn't work 
+  shell: rm -fr /etc/init/mesos-master.conf
+  when: inventory_hostname in groups['slaves']
+
+# ---------- masters specific --------------------------------------------------------
+
+- name: specify number of replicas of replicated_log; the quorum value
+  template: src=quorum.j2 dest=/etc/mesos-master/quorum owner=0 group=0 mode=644
+  when: inventory_hostname in groups['masters']
+
+- name: specify the hostname of the master
+  template: src=hostname.j2 dest=/etc/mesos-master/hostname owner=0 group=0 mode=644
+  when: inventory_hostname in groups['masters']
+
+- name: specify the ip address of the master
+  template: src=ip.j2 dest=/etc/mesos-master/ip owner=0 group=0 mode=644
+  when: inventory_hostname in groups['masters']
+
+- name: copy mesos master init script
+  template: src=mesos-master.conf.j2 dest=/etc/init/mesos-master.conf owner=0 group=0 mode=644
+  when: inventory_hostname in groups['masters']
+  notify:
+    - start mesos-master
+
+- name: copy zookeeper-3.4.6.tar.gz over to masters only
+  copy: src={{zookeeper_gz}} owner=0 group=0 dest=/tmp
+  when: inventory_hostname in groups['masters']
+
+- name: untar zookeeper-3.4.6.tar.gz 
+  # unarchive module doesn't change 1000:1000 ownership. But zookeeper doesn't seem to bother with it
+  unarchive: src=/tmp/{{zookeeper_gz}} copy=no dest=/etc owner=0 group=0
+  when: inventory_hostname in groups['masters']
+
+#- name: fix owner permission thing because unarchive above ignores it
+#  file: path=/etc/zookeeper state=directory group=0 owner=0 recurse=yes
+
+- name: create symlink 
+  file: src={{zookeeper}} dest=/etc/zookeeper owner=0 group=0 state=link
+  when: inventory_hostname in groups['masters']
+
+- name: set the unique id for each zookeeper server
+  copy: content={{zk_myid}} dest=/etc/zookeeper/myid
+  when: inventory_hostname in groups['masters']
+
+- name: map the id to the ip address of each master in zoo.cfg
+  template: src=zoo_cfg.j2 dest=/etc/zookeeper/conf/zoo.cfg owner=0 group=0 mode=644
+  when: inventory_hostname in groups['masters']
+
+- name: create zookeeper init script
+  template: src=zookeeper.j2 dest=/etc/init.d/zookeeper owner=0 group=0 mode=755
+  when: inventory_hostname in groups['masters']
+
+- name: add zookeeper to chkconfig and start zookeeper
+  shell: chkconfig --add zookeeper
+  when: inventory_hostname in groups['masters']
+  notify:
+    - start zookeeper
+
+- name: disable mesos-slave.conf... enable=no of service module doesn't work
+  shell: rm -fr /etc/init/mesos-slave.conf
+  when: inventory_hostname in groups['masters']
+
+
+
+
+
+
+

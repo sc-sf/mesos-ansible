@@ -1,0 +1,11 @@
+# file: roles/mesos/handlers/main.yml
+
+- name: start mesos-master
+  service: name=mesos-master state=started
+
+- name: start zookeeper
+  service: name=zookeeper enabled=yes state=started
+
+- name: start mesos-slave
+  service: name=mesos-slave state=started
+  

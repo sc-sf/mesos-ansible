@@ -1,0 +1,13 @@
+# file: cluster.yml
+
+---
+
+- hosts: all
+  sudo: yes
+  #gather_facts: no
+#  tasks:
+
+  roles:
+    - mesos
+    #- hadoop_dfs
+

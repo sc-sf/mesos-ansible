@@ -1,0 +1,15 @@
+# file: production
+
+[masters]
+cent01.lab.hdlocal ip=172.1.1.11
+cent02.lab.hdlocal ip=172.1.1.12
+cent03.lab.hdlocal ip=172.1.1.13
+
+[slaves]
+slave1.lab.hdlocal ip=172.1.1.61
+slave2.lab.hdlocal ip=172.1.1.62
+slave3.lab.hdlocal ip=172.1.1.63
+
+[namenode]
+cent01.lab.hdlocal ip=172.1.1.11
+

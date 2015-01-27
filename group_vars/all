@@ -1,0 +1,47 @@
+# file: group_vars/all
+
+# these are site-wide variables
+
+# mesos
+mesos: mesos-0.21.0-1.0
+mesos_rpm: "{{mesos}}.rpm"
+leading_master: "{{ groups['masters'][0] }}"
+master1: "{{ hostvars[groups['masters'][0]]['ip'] }}"
+master2: "{{ hostvars[groups['masters'][1]]['ip'] }}"
+master3: "{{ hostvars[groups['masters'][2]]['ip'] }}"
+zk_ensemble_url: "{{ master1 }}:2181,{{ master2 }}:2181,{{ master3 }}:2181"
+# I like syntax below better but using IP is safer than hostname or fqdn 
+#zk_ensemble_url: "{{ groups['masters'] | join(':2181,') }}:2181"
+
+mesos_native_lib: /usr/local/lib/libmesos.so
+hadoop_bin_dir: /opt/hadoop-2.5.0-cdh5.2.0/bin
+hadoop_home: /opt/hadoop-2.5.0-cdh5.2.0
+java_home: /usr/lib/jvm/jre-1.7.0
+hadoop_config_dir: /opt/hadoop-2.5.0-cdh5.2.0/etc/hadoop
+hadoop_cdh: hadoop-2.5.0-cdh5.2.0
+hadoop_cdh_gz: "{{hadoop_cdh}}.tar.gz"
+# heapsize gets used by most hadoop daemons; default is 1000
+hadoop_heapsize: 500
+
+# this is used to remove the duplicate slf4j jar file that causes multiple bindings warning
+# keep this copy /opt//hadoop-2.5.0-cdh5.2.0/share/hadoop/mapreduce1/lib/slf4j-log4j12-1.7.5.jar 
+# remove the following copy
+hadoop_slf4j_jar: /opt/hadoop-2.5.0-cdh5.2.0/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar
+
+# zookeeper
+zookeeper: zookeeper-3.4.6
+zookeeper_gz: "{{zookeeper}}.tar.gz"
+
+# to log4j.properties
+log4j_nullappender_desc: '# Null Appender - the only custom setting'
+log4j_nullappender: log4j.appender.NullAppender=org.apache.log4j.varia.NullAppender
+
+nn_data_dir: [ '/data/1/dfs/nn' , '/data/2/dfs/nn' ]
+dn_data_dir: [ '/data/1/dfs/dn' , '/data/2/dfs/dn' ]
+
+# hdfs-site.xml 
+dfs_permissions_superusergroup: hdfs
+dfs_namenode_name_dir: "file://{{ nn_data_dir | join(',file://') }}"
+dfs_datanode_data_dir: "file://{{ dn_data_dir | join(',file://') }}"
+
+

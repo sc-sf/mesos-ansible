@@ -1,0 +1,10 @@
+---
+- hosts: all
+  remote_user: ansible
+  sudo: yes
+  gather_facts: no
+  tasks:
+  - name: shutdown all
+    shell: shutdown -r now 
+    #delegate_to: localhost
+

@@ -1,0 +1,15 @@
+description "mesos slave"
+
+# Start just after the System-V jobs (rc) to ensure networking and zookeeper
+# are started. This is as simple as possible to ensure compatibility with
+# Ubuntu, Debian, CentOS, and RHEL distros. See:
+# http://upstart.ubuntu.com/cookbook/#standard-idioms
+start on stopped rc RUNLEVEL=[2345]
+respawn
+
+script
+  export JAVA_HOME={{java_home}}
+  export HADOOP_CONF_DIR={{hadoop_config_dir}}
+  export PATH={{hadoop_bin_dir}}:$PATH
+  exec /usr/bin/mesos-init-wrapper slave
+end script

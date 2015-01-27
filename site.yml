@@ -1,0 +1,9 @@
+
+# file: site.yml
+---
+
+# this should be run once
+#- include: useradd-hdfs_local.yml
+
+
+- include: cluster.yml
