@@ -170,40 +170,6 @@ In an ensemble, there's only one leader and the rest of the servers are called f
         when: inventory_hostname in groups['masters']
 
 
-Directory layout:
-
-mesos-ansible
-├── ansible.cfg
-├── cluster.yml
-├── inventory
-├── restartall.yml
-├── shutdownall.yml
-└── site.yml
-├── group_vars
-│   └── all
-├── host_vars
-│   ├── cent01.lab.hdlocal
-│   ├── cent02.lab.hdlocal
-│   └── cent03.lab.hdlocal
-├── roles
-│   └── mesos
-│       ├── files
-│       │   ├── mesos-0.21.0-1.0.rpm
-│       │   └── zookeeper-3.4.6.tar.gz
-│       ├── handlers
-│       │   └── main.yml
-│       ├── tasks
-│       │   └── main.yml
-│       └── templates
-│           ├── hostname.j2
-│           ├── ip.j2
-│           ├── mesos-master.conf.j2
-│           ├── mesos-slave.conf.j2
-│           ├── quorum.j2
-│           ├── resources.j2
-│           ├── zk.j2
-│           ├── zoo_cfg.j2
-│           └── zookeeper.j2
 
 
 
